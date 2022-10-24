@@ -53,6 +53,6 @@ Go to `def scrolling`, change sleeping time
 time.sleep(your_new_time_in_seconds)
 ```
 
-## Licence
+## License
 
-This source is licenced under MIT Licence, for more information read `LICENCE` file.
+This source is licenced under MIT Licence, for more information read `LICENSE` file.
