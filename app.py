@@ -16,25 +16,40 @@ def get_data(driver):
     more_elemets = driver.find_elements_by_class_name('w8nwRe kyuRq')
     for list_more_element in more_elemets:
         list_more_element.click()
+        
+    elements = driver.find_element_by_xpath('//body/div[2]/div[3]/div[8]/div[9]/div[1]/div[1]/div[1]/div[2]/div[1]/div[1]/div[1]/div[1]/div[2]/div[8]')
+    childElement = elements.find_element_by_xpath('.//div[1]')
+    childElementClassName = childElement.get_attribute('class')
+    elements = elements.find_elements_by_xpath(f'//*[@class="{childElementClassName}"]')
     
-    elements = driver.find_elements_by_class_name(
-        'jftiEf')
+    childElementNameClass = childElement.find_element_by_xpath('.//div[1]/div[1]/div[2]/div[2]/div[1]/button[1]/div[1]').get_attribute('class')
+    childElementTextClass = childElement.find_element_by_xpath('.//div[1]/div[4]/div[2]/div[1]/span[1]').get_attribute('class')
+    childElementScoreClass = childElement.find_element_by_xpath('.//div[1]/div[1]/div[4]/div[1]/span[1]').get_attribute('class')
+    # elementClassReplaced = elementsClassName.replace(' ', '.')
+    print(childElementNameClass, childElementTextClass, childElementScoreClass)
     lst_data = []
     for data in elements:
-        name = data.find_element_by_xpath(
-            './/a/div[@class="d4r55"]/span').text
-        text = data.find_element_by_xpath(
-            './/div[@class="MyEned"]/span[2]').text
-        score = data.find_element_by_xpath(
-            './/span[@class="kvMYJc"]').get_attribute("aria-label")
+        name = 'No name'
+        text = 'No text'
+        score = '-'
+        try:
+            name = data.find_element_by_xpath(
+                f'.//*[@class="{childElementNameClass}"]').text
+            score = data.find_element_by_xpath(
+                f'.//*[@class="{childElementScoreClass}"]').get_attribute("aria-label")
+            text = data.find_element_by_xpath(
+                f'.//*[@class="{childElementTextClass}"]').text
 
-        lst_data.append([name + " from GoogleMaps", text, score[1]])
+        except:
+            pass
+        
+        lst_data.append([name + " from GoogleMaps", text, score[0]])
 
     return lst_data
 
 
 def counter():
-    result = driver.find_element_by_class_name('jANrlb').find_element_by_class_name('fontBodySmall').text
+    result = driver.find_element_by_xpath('//body/div[2]/div[3]/div[8]/div[9]/div[1]/div[1]/div[1]/div[2]/div[1]/div[1]/div[1]/div[1]/div[2]/div[2]/div[1]/div[2]').find_element_by_class_name('fontBodySmall').text
     result = result.replace(',', '')
     result = result.split(' ')
     result = result[0].split('\n')
@@ -44,10 +59,15 @@ def counter():
 def scrolling(counter):
     print('scrolling...')
     scrollable_div = driver.find_element_by_xpath(
-        '//div[@class="lXJj5c Hk4XGb"]')
+        '//body/div[2]/div[3]/div[8]/div[9]/div[1]/div[1]/div[1]/div[2]/div[1]/div[1]/div[1]/div[1]/div[2]/div[last()]')
     for _i in range(counter):
+        
         scrolling = driver.execute_script(
-            'document.getElementsByClassName("dS8AEf")[0].scrollTop = document.getElementsByClassName("dS8AEf")[0].scrollHeight',
+            """
+            var xpathResult = document.evaluate('//body/div[2]/div[3]/div[8]/div[9]/div[1]/div[1]/div[1]/div[2]/div[1]/div[1]/div[1]/div[1]/div[2]', document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null);
+            var element = xpathResult.singleNodeValue;
+            element.scrollTop = element.scrollHeight;
+            """,
             scrollable_div
         )
         time.sleep(3)
