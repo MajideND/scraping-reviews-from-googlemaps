@@ -1,4 +1,9 @@
-# Google Maps Reviews Scraper   
+# Google Maps Reviews Scraper
+
+<p align="center">
+    <img src="image/banner.png" alt="Logo" width="80%">
+</p>
+
 A python script to scrape reviews from google maps.
 ## Requirements
 1. Python 3
