@@ -8,7 +8,7 @@ import pandas as pd
 
 from env import URL, DriverLocation
 
-def get_data(driver):
+def get_data(driver, dataStructreType):
     """
     this function get main text, score, name
     """
@@ -16,8 +16,10 @@ def get_data(driver):
     more_elemets = driver.find_elements_by_class_name('w8nwRe kyuRq')
     for list_more_element in more_elemets:
         list_more_element.click()
-        
-    elements = driver.find_element_by_xpath('//body/div[2]/div[3]/div[8]/div[9]/div[1]/div[1]/div[1]/div[2]/div[1]/div[1]/div[1]/div[1]/div[2]/div[8]')
+    if dataStructreType == 1:
+        elements = driver.find_element_by_xpath('//body/div[2]/div[3]/div[8]/div[9]/div[1]/div[1]/div[1]/div[2]/div[1]/div[1]/div[1]/div[1]/div[2]/div[9]')
+    else:
+        elements = driver.find_element_by_xpath('//body/div[2]/div[3]/div[8]/div[9]/div[1]/div[1]/div[1]/div[2]/div[1]/div[1]/div[1]/div[1]/div[2]/div[8]')
     childElement = elements.find_element_by_xpath('.//div[1]')
     childElementClassName = childElement.get_attribute('class')
     elements = elements.find_elements_by_xpath(f'//*[@class="{childElementClassName}"]')
@@ -25,8 +27,6 @@ def get_data(driver):
     childElementNameClass = childElement.find_element_by_xpath('.//div[1]/div[1]/div[2]/div[2]/div[1]/button[1]/div[1]').get_attribute('class')
     childElementTextClass = childElement.find_element_by_xpath('.//div[1]/div[4]/div[2]/div[1]/span[1]').get_attribute('class')
     childElementScoreClass = childElement.find_element_by_xpath('.//div[1]/div[1]/div[4]/div[1]/span[1]').get_attribute('class')
-    # elementClassReplaced = elementsClassName.replace(' ', '.')
-    print(childElementNameClass, childElementTextClass, childElementScoreClass)
     lst_data = []
     for data in elements:
         name = 'No name'
@@ -47,13 +47,28 @@ def get_data(driver):
 
     return lst_data
 
+def ifGDRPNotice(driver):
+    # check if the domain of the url is consent.google.com
+    if 'consent.google.com' in driver.current_url:
+        # click on the "I agree" button
+        driver.execute_script('document.getElementsByTagName("form")[0].submit()');
+    return
+
+def ifPageIsFullyLoaded(driver):
+    # check if the page fully loaded including js
+    return driver.execute_script('return document.readyState') != 'complete'
 
 def counter():
-    result = driver.find_element_by_xpath('//body/div[2]/div[3]/div[8]/div[9]/div[1]/div[1]/div[1]/div[2]/div[1]/div[1]/div[1]/div[1]/div[2]/div[2]/div[1]/div[2]').find_element_by_class_name('fontBodySmall').text
+    dataStructreType = 1
+    try:
+        result = driver.find_element_by_xpath('//body/div[2]/div[3]/div[8]/div[9]/div[1]/div[1]/div[1]/div[2]/div[1]/div[1]/div[1]/div[1]/div[2]/div[1]/div[1]/div[2]').find_element_by_class_name('fontBodySmall').text
+    except:
+        dataStructreType = 2
+        result = driver.find_element_by_xpath('//body/div[2]/div[3]/div[8]/div[9]/div[1]/div[1]/div[1]/div[2]/div[1]/div[1]/div[1]/div[1]/div[2]/div[2]/div[1]/div[2]').find_element_by_class_name('fontBodySmall').text
     result = result.replace(',', '')
     result = result.split(' ')
     result = result[0].split('\n')
-    return int(int(result[0])/10)+1
+    return int(int(result[0])/10)+1, dataStructreType
 
 
 def scrolling(counter):
@@ -91,12 +106,19 @@ if __name__ == "__main__":
     driver = webdriver.Chrome(DriverPath, options=options)
 
     driver.get(URL)
-    time.sleep(5)
+    
+    while ifPageIsFullyLoaded(driver):
+        time.sleep(1)
+        
+    ifGDRPNotice(driver)
+    
+    while ifPageIsFullyLoaded(driver):
+        time.sleep(1)
 
     counter = counter()
-    scrolling(counter)
+    scrolling(counter[0])
 
-    data = get_data(driver)
+    data = get_data(driver, counter[1])
     driver.close()
 
     write_to_xlsx(data)
