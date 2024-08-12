@@ -66,6 +66,7 @@ def counter():
         dataStructreType = 2
         result = driver.find_element_by_xpath('//body/div[2]/div[3]/div[8]/div[9]/div[1]/div[1]/div[1]/div[2]/div[1]/div[1]/div[1]/div[1]/div[2]/div[2]/div[1]/div[2]').find_element_by_class_name('fontBodySmall').text
     result = result.replace(',', '')
+    result = result.replace('.', '')
     result = result.split(' ')
     result = result[0].split('\n')
     return int(int(result[0])/10)+1, dataStructreType
